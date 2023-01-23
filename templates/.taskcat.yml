@@ -1,25 +1,19 @@
-general:
-  s3_regional_buckets: true
 project:
   name: quickstart-mongodb-atlas
   owner: quickstart-eng@amazon.com
-  # package_lambda: true
-  # lambda_source_path: functions/source
-  # lambda_zip_path: functions/packages
-  # shorten_stack_name: true
 tests:
   mdb-atlas-fargate:
     regions:
     - us-east-1
     parameters:
-      PublicKey: override
-      PrivateKey: override
-      OrgId: override
+      PublicKey: dllisqsk
+      PrivateKey: 51768f23-0fb7-455d-9f03-4973b3413834
+      OrgId: 5fe4ea50d1a2b617175ee3d4
       ProjectName: tcat-project-$[taskcat_random-string]-$[taskcat_current_region]
       ClusterName: tcat-cluster-$[taskcat_random-string]-$[taskcat_current_region]
-      DatabaseUserName: override
-      DatabasePassword: override
-      DatabaseUserRoleDatabaseName: override
-      ClusterRegion: override
-      VpcId: override
+      DatabaseUserName: testUser1
+      DatabasePassword: test1231
+      DatabaseUserRoleDatabaseName: test
+      ClusterRegion: ap-south-1
+      VpcId: vpc-07e2075326c2fe4df
     template: quickstart_Fargate_V2.yaml

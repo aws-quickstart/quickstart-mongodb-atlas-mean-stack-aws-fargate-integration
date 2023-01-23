@@ -195,8 +195,8 @@ Resources:
               Service: ecs-tasks.amazonaws.com
             Action: "sts:AssumeRole"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
   AtlasProject:
     Type: MongoDB::Atlas::Project
     DependsOn: AtlasIAMRole
@@ -244,7 +244,7 @@ Resources:
                 InstanceSize: !Ref "ClusterInstanceSize"
                 NodeCount: "1"
               Priority: "7"
-              RegionName: "US_EAST_1"
+              RegionName: !Ref "ClusterRegion"
   AtlasDatabaseUser:
     Type: MongoDB::Atlas::DatabaseUser
     Properties:
@@ -254,7 +254,7 @@ Resources:
         PrivateKey: !Ref "PrivateKey"
       Username: !Ref "DatabaseUserName"
       Password: !Ref "DatabasePassword"
-      DatabaseName: "admin"
+      DatabaseName: !Ref "DatabaseUserRoleDatabaseName"
       Roles:
         - RoleName: "atlasAdmin"
           DatabaseName: "admin"
@@ -433,8 +433,8 @@ Resources:
               Service: ecs-tasks.amazonaws.com
         Version: 2012-10-17
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
       Tags:
         - Key: com.docker.compose.project
           Value: partner-meanstack-atlas-fargate
@@ -671,8 +671,8 @@ Resources:
               Service: ecs-tasks.amazonaws.com
         Version: 2012-10-17
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
       Tags:
         - Key: com.docker.compose.project
           Value: partner-meanstack-atlas-fargate
