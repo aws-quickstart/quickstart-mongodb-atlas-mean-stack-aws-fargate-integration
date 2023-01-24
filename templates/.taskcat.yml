@@ -13,7 +13,7 @@ tests:
       ClusterName: tcat-cluster-$[taskcat_random-string]-$[taskcat_current_region]
       DatabaseUserName: testUser1
       DatabasePassword: test1231
-      DatabaseUserRoleDatabaseName: test
-      ClusterRegion: ap-south-1
+      DatabaseUserRoleDatabaseName: admin
+      ClusterRegion: US_EAST_1
       VpcId: vpc-07e2075326c2fe4df
     template: quickstart_Fargate_V2.yaml

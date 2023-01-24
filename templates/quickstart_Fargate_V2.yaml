@@ -77,6 +77,7 @@ Parameters:
     Description: MongoDB Atlas Database User Password.
     Type: String
     Default: "test123"
+    NoEcho: true
   VpcId:
     Description: AWS VPC network ID.
     Type: String
@@ -112,31 +113,31 @@ Parameters:
       - "M400_NVME"
       - "R700"
   ClusterRegion:
-    Default: ap-south-1
+    Default: US_EAST_1
     Description: The AWS Region where the Atlas DB Cluster will run.
     Type: String
     AllowedValues:
-      - "us-east-1"
-      - "us-east-2"
-      - "ca-central-1"
-      - "us-west-1"
-      - "us-west-2"
-      - "sa-east-1"
-      - "ap-south-1"
-      - "ap-east-2"
-      - "ap-southeast-1"
-      - "ap-southeast-2"
-      - "ap-northeast-1"
-      - "ap-northeast-2"
-      - "eu-central-1"
-      - "eu-west-1"
-      - "eu-north-1"
-      - "eu-west-1"
-      - "eu-west-2"
-      - "eu-west-3"
-      - "eu-south-1"
-      - "me-south-1"
-      - "af-south-1"
+      - "US_EAST_1"
+      - "US_EAST_2"
+      - "CA_CENTRAL_1"
+      - "US_WEST_1"
+      - "US_WEST_2"
+      - "SA_EAST_1"
+      - "AP_SOUTH_1"
+      - "AP_EAST_2"
+      - "AP_SOUTHEAST_1"
+      - "AP_SOUTHEAST_2"
+      - "AP_NORTHEAST_1"
+      - "AP_NORTHEAST_2"
+      - "EU_CENTRAL_1"
+      - "EU_WEST_1"
+      - "EU_NORTH_1"
+      - "EU_WEST_1"
+      - "EU_WEST_2"
+      - "EU_WEST_3"
+      - "EU_SOUTH_1"
+      - "ME_SOUTH_1"
+      - "AF_SOUTH_1"
   ClusterMongoDBMajorVersion:
     Description: The version of MongoDB
     Type: String
@@ -149,7 +150,7 @@ Parameters:
   DatabaseUserRoleDatabaseName:
     Description: Database User Role Database Name
     Type: String
-    Default: "test"
+    Default: "admin"
 Mappings:
   SubnetConfig:
     VPC:
@@ -257,7 +258,7 @@ Resources:
       DatabaseName: !Ref "DatabaseUserRoleDatabaseName"
       Roles:
         - RoleName: "atlasAdmin"
-          DatabaseName: "admin"
+          DatabaseName: !Ref "DatabaseUserRoleDatabaseName"
   PublicSubnetOne:
     Type: AWS::EC2::Subnet
     Properties:
