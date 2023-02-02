@@ -1,3 +1,36 @@
 // Include any postdeployment steps here, such as steps necessary to test that the deployment was successful. If there are no postdeployment steps, leave this file empty.
 
 == Postdeployment steps
+
+=== Test the deployment
+
+Here, we can how to test your deployment:
+
+. When the deployment completes, locate the newly created load balancer deployed in the stack, and get the DNS name shown under the load balancer section. With the help of DNS name and default port 8080, you can use to open the MEAN Stack web application.
+
+http://<DNS_NAME:8080/
+
+=== Best practices for using {partner-product-short-name} on AWS
+
+There are many considerations for production-grade deployments. While this Partner Solution demonstrates some of these, such as database-user security and peering, see https://docs.atlas.mongodb.com/best-practices/[Atlas Production Best Practices^] for the latest information.
+
+Choosing the correct Atlas cluster tier and configuration is an important step in setting up a successful production MongoDB deployment. You can always modify a cluster at a later time, but getting started with the right configuration is possible with a few calculations based on your data set size and network requirements. For more information, see https://docs.atlas.mongodb.com/production-considerations/[MongoDB Atlas Production Considerations^].
+
+=== Security
+
+This Partner Solution provisions a cluster with security and TLS enabled by default. Optionally, network peering can be enabled on a new or existing AWS VPC. For more information, see https://docs.atlas.mongodb.com/setup-cluster-security/[MongoDB Security Features and Setup^].
+
+If you plan to use AWS Lambda, ensure that you follow the recommendations from https://docs.atlas.mongodb.com/best-practices-connecting-to-aws-lambda/[Best Practices Connecting from AWS Lambda^].
+
+
+=== MongoDB Atlas CloudFormation resource reference
+
+
+- *MongoDB::Atlas::Project* — A logical grouping of clusters. You can have multiple clusters within a single project and multiple projects within a single organization.
+
+- *MongoDB::Atlas::Cluster* — A set of nodes comprising a MongoDB deployment and database. In Atlas, clusters can be replica sets or sharded deployments.
+
+- *MongoDB::Atlas::DatabaseUser* — Credentials used to authenticate a client to access a MongoDB database deployment. You can assign privileges to a database user to determine a user's access level to a cluster. Database users are different from Atlas users. Database users have access to MongoDB deployments but not the Atlas application.
+
+- *MongoDB::Atlas::ProjectIPAccessList* — Atlas allows only client connections to the cluster from entries in the project's IP access list. Each entry is either a single IP address or CIDR.
+
