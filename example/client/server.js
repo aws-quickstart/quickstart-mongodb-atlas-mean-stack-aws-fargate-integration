@@ -8,7 +8,7 @@ const path = require('path');
 
 // Envirnments
 const envProp = process.env;
-
+console.log(process.env)
 const port = envProp.PORT || 8080;
 
 const app = express();
@@ -32,6 +32,7 @@ const checkAuthentication = (req, res, next) => {
 app.get('/getEnv', (req, res) => {
   const properties = {
     baseUrl: process.env.baseUrl,
+    ATLAS_URI:process.env.ATLAS_URI
   };
   res.json(properties);
 });

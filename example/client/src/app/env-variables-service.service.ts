@@ -15,6 +15,7 @@ export class EnvVariablesServiceService {
       console.log('Loaded ENV',this.ENV)
     } catch (e) {
       console.log('Loading Env Failed.....')
+      console.log(e)
       return null
     }
 

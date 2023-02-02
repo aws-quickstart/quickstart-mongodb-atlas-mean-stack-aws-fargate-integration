@@ -1,13 +1,15 @@
+import * as dotenv from 'dotenv';
+import * as process from 'process'
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, tap } from 'rxjs';
 import { Employee } from './employee';
 import { EnvVariablesServiceService } from './env-variables-service.service';
 // import { * }  from '@dotenv';
-// import * as dotenv from 'dotenv';
+
 // Load environment variables from the .env file, where the ATLAS_URI is configured
 // dotenv.config();
-
+// console.log(process)
 // const ATLAS_URI = process.env
 @Injectable({
   providedIn: 'root',
@@ -15,9 +17,9 @@ import { EnvVariablesServiceService } from './env-variables-service.service';
 export class EmployeeService {
   /*private url = 'http://partner-demo-eb-meanstack-dev.us-east-1.elasticbeanstalk.com:5200'; */
 //9fe9cd91d3863eaa.elb.us-east-1.amazonaws.com
-  // private url = ATLAS_URI;
+  private url:any;
 
-  private url :any;
+  // private url :any;
   private employees$: Subject<Employee[]> = new Subject();
 
   constructor(private httpClient: HttpClient,private service: EnvVariablesServiceService) { 
