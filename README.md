@@ -15,7 +15,7 @@ This Quick Start provisions complete MongoDB Atlas MEAN Stack AWS Fargate deploy
 
 - An AWS account with necessary permissions.
 - (Optional) AWS CLI installed in your PC if AWS CLI is your preferred tool.
-- AWS Network Configuration - vpc id is required 
+- AWS Network Configuration - vpc cidr block and subnets cidr
 - A MongoDB account and a pair of MongoDB Cloud Public and Private API keys.
 - ECR client and server images
 
@@ -56,7 +56,7 @@ cp "/tmp/mongocli_${MONGOCLI_VERSION}_linux_x86_64/mongocli" "~/.local/bin"
    - Organization Id,  Project Name,  Cluster Name,  Cluster Region,
    - Instance size,  Database Name,  Database Username and Password.
 * AWS Network Configuration
-   - VPC Id 
+   - VPC Cidr and subnets cidr
 
 
 Make sure to configure each tool properly.
