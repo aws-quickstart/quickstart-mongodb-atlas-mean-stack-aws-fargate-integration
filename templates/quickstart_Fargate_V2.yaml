@@ -263,113 +263,30 @@ Resources:
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         Region: !Ref QSS3BucketRegion
-  AtlasApiKeySecret:
-    Type: 'AWS::SecretsManager::Secret'
-    Properties:
-      Name: !Sub "${AWS::StackName}-ApiKey-Secret"
-      Description: MongoDB Atlas API Key
-      #
-      # { "PublicKey" : "xxx", "PrivateKey", "yyy", "OrgId": "zzz" }
-      #
-      SecretString: !Join ['', ['{"PublicKey":"', !Ref "PublicKey",'", "PrivateKey":"', !Ref "PrivateKey", '", "OrgId":"', !Ref "OrgId", '"}'] ]
-      Tags:
-      - Key: mongodb-atlas-quickstart-stack 
-        Value: !Sub "${AWS::StackName}"
-  AtlasIAMRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-        - Effect: Allow
-          Principal:
-            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
-            Service: ecs-tasks.amazonaws.com
-          Action: 'sts:AssumeRole'
-      ManagedPolicyArns: 
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-  AtlasProject:
-    Type: MongoDB::Atlas::Project
-    DependsOn: AtlasIAMRole
+  Atlas:
+    Type: AWS::CloudFormation::Stack
     Metadata:
       PseudoDependsOn: !If
         - ActivateResources
         - - !Ref ActivateAtlasResources
         - ''
     Properties:
-      OrgId: !Ref "OrgId" 
-      ApiKeys:
-        PublicKey:  !Ref "PublicKey"
-        PrivateKey: !Ref "PrivateKey"
-      Name: !Ref "ProjectName"
-  AtlasProjectIPAccessList:
-    Type: MongoDB::Atlas::ProjectIpAccessList
-    Metadata:
-      PseudoDependsOn: !If
-        - ActivateResources
-        - - !Ref ActivateAtlasResources
-        - ''
-    Properties:
-      ProjectId: !Ref "AtlasProject"
-      ApiKeys:
-        PublicKey:  !Ref "PublicKey"
-        PrivateKey: !Ref "PrivateKey"
-      AccessList:
-      - IPAddress: "0.0.0.0/1"
-        Comment: "Testing open all ips"
-  AtlasCluster:
-    Type: MongoDB::Atlas::Cluster
-    Metadata:
-      PseudoDependsOn: !If
-        - ActivateResources
-        - - !Ref ActivateAtlasResources
-        - ''
-    Properties:
-      ApiKeys:
-        PublicKey:  !Ref "PublicKey"
-        PrivateKey: !Ref "PrivateKey"
-      ProjectId: !Ref "AtlasProject"
-      Name: !Ref "ClusterName"
-      MongoDBMajorVersion: !Ref "ClusterMongoDBMajorVersion"
-      ClusterType: "REPLICASET"
-      ReplicationSpecs:
-        - NumShards: '1'
-          AdvancedRegionConfigs:
-            - AutoScaling:
-                DiskGB:
-                  Enabled: 'true'
-                Compute:
-                  Enabled: 'false'
-                  ScaleDownEnabled: 'false'
-              ElectableSpecs:
-                EbsVolumeType: STANDARD
-                InstanceSize: !Ref "ClusterInstanceSize"
-                NodeCount: '3'
-              ReadOnlySpecs:
-                EbsVolumeType: STANDARD
-                InstanceSize: !Ref "ClusterInstanceSize"
-                NodeCount: '1'
-              Priority: '7'
-              RegionName: !Ref ClusterRegion
-  AtlasDatabaseUser:
-    Type: MongoDB::Atlas::DatabaseUser
-    Metadata:
-      PseudoDependsOn: !If
-        - ActivateResources
-        - - !Ref ActivateAtlasResources
-        - ''
-    Properties:
-      ProjectId: !Ref "AtlasProject"
-      ApiKeys:
-        PublicKey:  !Ref "PublicKey"
-        PrivateKey: !Ref "PrivateKey"
-      Username: !Ref "DatabaseUserName"
-      Password: !Ref "DatabasePassword"
-      DatabaseName: !Ref "DatabaseUserRoleDatabaseName"
-      Roles:
-      - RoleName: "atlasAdmin"
-        DatabaseName: !Ref "DatabaseUserRoleDatabaseName" 
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/mongodb-atlas-ecs.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        ClusterInstanceSize: !Ref ClusterInstanceSize
+        ClusterMongoDBMajorVersion: !Ref ClusterMongoDBMajorVersion
+        ProjectName: !Ref ProjectName
+        ClusterName: !Ref ClusterName
+        ClusterRegion: !Ref ClusterRegion
+        OrgId: !Ref OrgId
+        DatabaseUserName: !Ref "DatabaseUserName"
+        DatabasePassword: !Ref "DatabasePassword"
+        DatabaseUserRoleDatabaseName: !Ref "DatabaseUserRoleDatabaseName"
+        PrivateKey: !Ref PrivateKey
+        PublicKey: !Ref PublicKey
 
   ## New VPC
   VPCStack:
@@ -707,7 +624,7 @@ Resources:
           Image: docker/ecs-searchdomain-sidecar:1.0
           Environment:
             - Name: ATLAS_URI
-              Value: !GetAtt "AtlasCluster.ConnectionStrings.StandardSrv"
+              Value: !GetAtt "Atlas.Outputs.ClusterSrvAddress"
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -735,7 +652,7 @@ Resources:
                       1,
                       !Split [
                         "//",
-                        !GetAtt "AtlasCluster.ConnectionStrings.StandardSrv",
+                        !GetAtt "Atlas.Outputs.ClusterSrvAddress",
                       ],
                     ]
           LinuxParameters: {}
@@ -753,8 +670,8 @@ Resources:
               HostPort: 5200
               Protocol: tcp
       Cpu: "256"
-      TaskRoleArn: !GetAtt "AtlasIAMRole.Arn"
-      ExecutionRoleArn: !GetAtt "AtlasIAMRole.Arn"
+      TaskRoleArn: !GetAtt "Atlas.Outputs.AtlasIAMRole"
+      ExecutionRoleArn: !GetAtt "Atlas.Outputs.AtlasIAMRole"
       Family: partner-meanstack-atlas-fargate-server
       Memory: "512"
       NetworkMode: awsvpc
@@ -784,40 +701,26 @@ Resources:
 
 Outputs:
   AtlasIAMRole:
-    Description: "ARN for AWS IAM Role database cluster access"
-    Value: !GetAtt "AtlasIAMRole.Arn"
-    Export:
-      Name: !Join [ "-", [ !Ref "AWS::StackName","AtlasIAMRoleARN" ] ]
+    Description: "ARN for AWS IAM role database cluster access."
+    Value: !GetAtt "Atlas.Outputs.AtlasIAMRole"
   AtlasDatabaseUser:
-    Description: "Atlas database user, configured for AWS IAM Role access."
-    Value: !Ref AtlasDatabaseUser
-    Export:
-      Name: !Join [ "-", [ !Ref "AWS::StackName","AtlasDatabaseUser" ] ]
+    Description: "Atlas database user, configured for AWS IAM role access."
+    Value: !GetAtt "Atlas.Outputs.AtlasDatabaseUser"
   AtlasProject:
-    Description: "Info on your Atlas deployment"
-    Value: !Ref AtlasProject
-    Export:
-      Name: !Join [ "-", [ !Ref "AWS::StackName","AtlasProjectId" ] ]
+    Description: "Information about your Atlas deployment."
+    Value: !GetAtt "Atlas.Outputs.AtlasProject"
   AtlasProjectIPAccessList:
-    Description: "Atlas project ip access list"
-    Value: !Ref AtlasProjectIPAccessList
-    Export:
-      Name: !Join [ "-", [ !Ref "AWS::StackName","AtlasProjectIPAccessList" ] ]
+    Description: "Atlas project IP access list."
+    Value: !GetAtt "Atlas.Outputs.AtlasProjectIPAccessList"
   AtlasCluster:
-    Description: "Info on your Atlas Cluster"
-    Value: !Ref AtlasCluster
-    Export:
-      Name: !Join [ "-", [ !Ref "AWS::StackName","AtlasCluster" ] ]
+    Description: "Information about your Atlas cluster."
+    Value: !GetAtt "Atlas.Outputs.AtlasCluster"
   ClusterState:
-    Description: "Cluster State"
-    Value: !GetAtt "AtlasCluster.StateName"
-    Export:
-      Name: !Join [ "-", [ !Ref "AWS::StackName","ClusterState" ] ]
+    Description: "State of your MongoDB cluster."
+    Value: !GetAtt "Atlas.Outputs.ClusterState"
   ClusterSrvAddress:
-    Description: "Hostname for mongodb+srv:// connection string"
-    Value: !GetAtt "AtlasCluster.ConnectionStrings.StandardSrv"
-    Export:
-      Name: !Join [ "-", [ !Ref "AWS::StackName","ClusterSrvAddress" ] ]
+    Description: "Hostname for the mongodb+srv:// connection string."
+    Value: !GetAtt "Atlas.Outputs.ClusterSrvAddress"
   PrivateSubnet1AID:
     Description: Private subnet 1A ID in Availability Zone 1
     Value: !GetAtt "VPCStack.Outputs.PrivateSubnet1AID"

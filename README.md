@@ -33,20 +33,7 @@ To post feedback, submit feature ideas, or report bugs, use the [Issues](/issues
 
 ## Getting Started
 
-### Setup AWS & API Keys
-
-If needed, install the awscli.
-
-```bash
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-unzip /tmp/awscliv2.zip
-sudo /tmp/aws/install
-MONGOCLI_VERSION="1.7.0"
-curl -L "https://github.com/mongodb/mongocli/releases/download/${MONGOCLI_VERSION}/mongocli_${MONGOCLI_VERSION}_linux_x86_64.tar.gz" -o "/tmp/mongocli_${MONGOCLI_VERSION}_linux_x86_64.tar.gz"
-tar xzvf "/tmp/mongocli_${MONGOCLI_VERSION}_linux_x86_64.tar.gz" --directory /tmp
-cp "/tmp/mongocli_${MONGOCLI_VERSION}_linux_x86_64/mongocli" "~/.local/bin"
-~/.local/bin/mongocli --version
-```
+### Setup MeanStack Fargate(ECS) with MongoDB Atlas
 
 ### Request paramters:
 
@@ -55,21 +42,22 @@ cp "/tmp/mongocli_${MONGOCLI_VERSION}_linux_x86_64/mongocli" "~/.local/bin"
 * MongoDB Atlas Configuration
    - Organization Id,  Project Name,  Cluster Name,  Cluster Region,
    - Instance size,  Database Name,  Database Username and Password.
+   - Client and Server ECR Image
 * AWS Network Configuration
    - VPC Cidr and subnets cidr
 
 
-Make sure to configure each tool properly.
 
-```bash
-aws configure
-```
-
-
-### Launch the quickstart stack
+### Launch the quickstart stack using AWS CloudFormation
 
 The `templates/quickstart_Fargate_V2.yaml` template will
 provision a complete MongoDB Atlas MEAN Stack AWS Fargate Deployment for you. Based on your requirement you can select parameters for MongoDBAtlas cluster, database and AWS network confguration. 
+
+Using AWS CLI.
+
+```bash
+aws cloudformation deploy --stack-name STACK_NAME --template-body quickstart_Fargate_V2.yaml
+```
 
 This includes the follow resources:
 * [MongoDB::Atlas::Project](/cfn-resources/project)
@@ -77,8 +65,8 @@ This includes the follow resources:
 * [MongoDB::Atlas::Cluster](/cfn-resources/cluster)
 * [MongoDB::Atlas::DatabaseUser](/cfn-resources/database-user) 
     * Includes AWS IAM Role Integration 
-* AWS Fargate
+* AWS Fargate(ECS)
     * Includes 'ClientTaskExecutionRole' and 'ServerTaskExecutionRole' roles
 
 
-Please make sure to update the ECR images for client and server applications in `templates/quickstart_Fargate_V2.yaml`.
+Please make sure to provide correct parameters including ECR images for client and server applications in `templates/quickstart_Fargate_V2.yaml`.
