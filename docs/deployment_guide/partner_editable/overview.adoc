@@ -5,8 +5,16 @@ This {partner-product-short-name} demonstrates an end to end serverless applicat
 This {partner-product-short-name} mainly involves below components:
   
   * MongoDB Atlas resources 
-  * Virtual Private Network(VPC) 
-  * Amazon Fargate(ECS)
+    - *MongoDB::Atlas::Project*
+    - *MongoDB::Atlas::Cluster*
+    - *MongoDB::Atlas::DatabaseUser* 
+    - *MongoDB::Atlas::ProjectIPAccessList*
+  * AWS Resources
+    - *AWS Identity Access and Management*
+    - *AWS CloudMap*
+    - *Amazon ECR*
+    - *Amazon ECS*
+    - *Virtual Private Network(VPC)*
 
 // For advanced information about the product, troubleshooting, or additional functionality, refer to the https://{partner-solution-github-org}.github.io/{partner-solution-project-name}/operational/index.html[Operational Guide^].
 
