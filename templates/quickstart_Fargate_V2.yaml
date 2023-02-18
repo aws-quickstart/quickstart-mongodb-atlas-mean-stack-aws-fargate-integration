@@ -400,7 +400,7 @@ Resources:
           Image: docker/ecs-searchdomain-sidecar:1.0
           Environment:
             - Name: ATLAS_URI
-              Value: !Join [ '', ['http://', !GetAtt LoadBalancer.DNSName, ':', '5200'] ]
+              Value: !Sub 'http://${LoadBalancer.DNSName}:5200'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -417,7 +417,7 @@ Resources:
           Image: !Ref ClientServiceECRImageURI
           Environment:
             - Name: ATLAS_URI
-              Value: !Join [ '', ['http://', !GetAtt LoadBalancer.DNSName, ':', '5200'] ]
+              Value: !Sub 'http://${LoadBalancer.DNSName}:5200'
           LinuxParameters: {}
           LogConfiguration:
             LogDriver: awslogs
