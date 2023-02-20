@@ -1,20 +1,6 @@
 This guide covers the information you need to deploy the {partner-product-name} Partner Solution in the AWS Cloud.
 
-This {partner-product-short-name} demonstrates an end to end serverless application architected to scale for production, using MEAN Stack with Atlas and AWS Fargate services. The MEAN stack application is containerized and deployed to AWS Fargate as a single click deployment. This will benefit the startup enterprises to transform their ideas to an application at ease, secured and at scale
-
-This {partner-product-short-name} mainly involves below components:
-  
-  * MongoDB Atlas resources 
-    - *MongoDB::Atlas::Project*
-    - *MongoDB::Atlas::Cluster*
-    - *MongoDB::Atlas::DatabaseUser* 
-    - *MongoDB::Atlas::ProjectIPAccessList*
-  * AWS Resources
-    - *AWS Identity Access and Management*
-    - *AWS CloudMap*
-    - *Amazon ECR*
-    - *Amazon ECS*
-    - *Virtual Private Network(VPC)*
+This {partner-product-short-name} demonstrates an end to end serverless application architected to scale for production, using MEAN Stack with MongoDB Atlas and AWS Fargate services. The MEAN stack application is containerized and deployed to AWS Fargate as a single click deployment.
 
 // For advanced information about the product, troubleshooting, or additional functionality, refer to the https://{partner-solution-github-org}.github.io/{partner-solution-project-name}/operational/index.html[Operational Guide^].
 

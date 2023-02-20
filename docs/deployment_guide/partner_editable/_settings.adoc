@@ -1,11 +1,11 @@
-:partner-solution-project-name: quickstart-mean-stack-mongo-aws-fargate
+:partner-solution-project-name: quickstart-mongodb-atlas-mean-stack-aws-fargate-integration
 :partner-solution-github-org: aws-quickstart
-:partner-product-name: MeanStack AWS Fargate
-:partner-product-short-name: MeanStack AWS Fargate
-:partner-company-name: AWS.
-:doc-month: January
+:partner-product-name: MEAN Stack with AWS Fargate
+:partner-product-short-name: MEAN Stack with AWS Fargate
+:partner-company-name: MongoDB Inc.
+:doc-month: March
 :doc-year: 2023
-:partner-contributors: {partner-company-name}
+:partner-contributors: Zuhair Ahmed, {partner-company-name}
 // :other-contributors: Akua Mansa, Trek10
 //:aws-contributors: Janine Singh, AWS IoT Partner team
 :aws-ia-contributors: Vinod Shukla, AWS Integration & Automation team
