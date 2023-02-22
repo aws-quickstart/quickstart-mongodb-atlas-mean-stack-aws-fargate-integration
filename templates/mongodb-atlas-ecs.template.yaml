@@ -46,15 +46,14 @@ Parameters:
   PublicKey:
     Description: "Your MongoDB Cloud Public API Key"
     Type: String
-    Default: "PublicKey"
   PrivateKey:
     Description: "Your MongoDB Cloud Private API Key"
     Type: String
-    Default: "PrivateKey"
   OrgId:
     Description: "Your MongoDB Cloud Organization Id"
     Type: String
     Default: "OrgId"
+    AllowedPattern : ^([a-f0-9]{24})$
   ProjectName:
     Description: "The name of the project."
     Type: String
@@ -72,7 +71,6 @@ Parameters:
   DatabasePassword:
     Description: MongoDB Atlas Database User Password.
     Type: String
-    Default: "test123"
     NoEcho: true
   ClusterInstanceSize:
     Default: "M10"
@@ -154,7 +152,7 @@ Resources:
       #
       SecretString: !Join ['', ['{"PublicKey":"', !Ref "PublicKey",'", "PrivateKey":"', !Ref "PrivateKey", '", "OrgId":"', !Ref "OrgId", '"}'] ]
       Tags:
-      - Key: mongodb-atlas-quickstart-stack 
+      - Key: mongodb-atlas-quickstart-stack
         Value: !Sub "${AWS::StackName}"
   AtlasIAMRole:
     Type: AWS::IAM::Role
@@ -167,14 +165,14 @@ Resources:
             AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
             Service: ecs-tasks.amazonaws.com
           Action: 'sts:AssumeRole'
-      ManagedPolicyArns: 
+      ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
   AtlasProject:
     Type: MongoDB::Atlas::Project
     DependsOn: AtlasIAMRole
     Properties:
-      OrgId: !Ref "OrgId" 
+      OrgId: !Ref "OrgId"
       ApiKeys:
         PublicKey:  !Ref "PublicKey"
         PrivateKey: !Ref "PrivateKey"
@@ -230,7 +228,7 @@ Resources:
       DatabaseName: !Ref "DatabaseUserRoleDatabaseName"
       Roles:
       - RoleName: "atlasAdmin"
-        DatabaseName: !Ref "DatabaseUserRoleDatabaseName" 
+        DatabaseName: !Ref "DatabaseUserRoleDatabaseName"
 
 Outputs:
   AtlasIAMRole:
