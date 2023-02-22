@@ -52,7 +52,6 @@ Parameters:
   OrgId:
     Description: "Your MongoDB Cloud Organization Id"
     Type: String
-    Default: "OrgId"
     AllowedPattern : ^([a-f0-9]{24})$
   ProjectName:
     Description: "The name of the project."
