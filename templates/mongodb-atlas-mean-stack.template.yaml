@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: MongoDB Atlas AWS CloudFormation Quickstart. (qs-1rkorhec7)
+Description: Quickstart CloudFormation template to integrate MEAN stack with AWS Fargate (qs-1rkorhec7)
 Metadata:
   cfn-lint: { config: { ignore_checks: [W9002, W9003, W9006, E3001, E1010] } }
   AWS::CloudFormation::Interface:
@@ -8,8 +8,7 @@ Metadata:
       - Label:
           default: MongoDB Atlas ApiKey Configuration
         Parameters:
-          - PublicKey
-          - PrivateKey
+          - Profile
           - OrgId
       - Label:
           default: MongoDB Atlas Configuration
@@ -48,10 +47,8 @@ Metadata:
         default: Quick Start S3 key prefix
       QSS3BucketRegion:
         default: Quick Start S3 bucket Region
-      PublicKey:
-        default: MongoDB Atlas API PublicKey
-      PrivateKey:
-        default: MongoDB Atlas API PrivateKey
+      Profile:
+        default: "A secret with name cfn/atlas/profile/{Profile}"
       OrgId:
         default: MongoDB Atlas API OrgId
       ProjectName:
@@ -84,25 +81,25 @@ Parameters:
     Type: List<AWS::EC2::AvailabilityZone::Name>
   PrivateSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.0.0/19
     Description: CIDR block for the private subnet, located in Availability Zone 1.
     Type: String
   PrivateSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.32.0/19
     Description: CIDR block for the private subnet, located in Availability Zone 2.
     Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.128.0/20
     Description: CIDR block for public (DMZ) subnet 1, located in Availability Zone 1.
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.144.0/20
     Description: CIDR block for public (DMZ) subnet 2, located in Availability Zone 2.
     Type: String
@@ -114,16 +111,14 @@ Parameters:
     Default: 0.0.0.0/0
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String
-  PublicKey:
-    Description: "Your MongoDB Cloud Public API Key"
+  Profile:
+    Description: "A secret with name cfn/atlas/profile/{Profile}"
     Type: String
-  PrivateKey:
-    Description: "Your MongoDB Cloud Private API Key"
-    Type: String
+    Default: "default"
   OrgId:
     Description: "Your MongoDB Cloud Organization Id"
     Type: String
@@ -241,6 +236,15 @@ Parameters:
       can include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slashes (/).
     Type: String
+  QSVPCS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/.]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slashes (/).
+    Default: quickstart-mongodb-atlas-mean-stack-aws-fargate-integration/
+    Description: S3 key prefix for the VPC Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slashes (/).
+    Type: String
   QSS3BucketRegion:
     Default: 'us-east-1'
     Description: AWS Region where the Quick Start S3 bucket (QSS3BucketName) is
@@ -278,7 +282,7 @@ Resources:
         - ''
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/mongodb-atlas-ecs.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/mongodb-atlas.template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
@@ -287,12 +291,11 @@ Resources:
         ProjectName: !Ref ProjectName
         ClusterName: !Ref ClusterName
         ClusterRegion: !Ref ClusterRegion
+        Profile: !Ref Profile
         OrgId: !Ref OrgId
         DatabaseUserName: !Ref "DatabaseUserName"
         DatabasePassword: !Ref "DatabasePassword"
         DatabaseUserRoleDatabaseName: !Ref "DatabaseUserRoleDatabaseName"
-        PrivateKey: !Ref PrivateKey
-        PublicKey: !Ref PublicKey
 
   ## New VPC
   VPCStack:
@@ -300,7 +303,7 @@ Resources:
     Properties:
       TemplateURL:
         Fn::Sub:
-          - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml
+          - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSVPCS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
