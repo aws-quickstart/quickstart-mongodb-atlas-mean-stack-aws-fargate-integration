@@ -24,7 +24,7 @@ tests:
       ClientServiceECRImageURI: override
       ServerServiceECRImageURI: override
       ActivateMongoDBResources: "No"
-    template: quickstart_Fargate_V2.yaml
+    template: mongodb-atlas-mean-stack.template.yaml
   mdb-atlas-fargate-2:
     regions:
     - eu-central-1
@@ -47,7 +47,7 @@ tests:
       ClientServiceECRImageURI: override
       ServerServiceECRImageURI: override
       ActivateMongoDBResources: "No"
-    template: quickstart_Fargate_V2.yaml
+    template: mongodb-atlas-mean-stack.template.yaml
   mdb-atlas-fargate-3:
     regions:
     - us-east-1
@@ -70,4 +70,4 @@ tests:
       ClientServiceECRImageURI: override
       ServerServiceECRImageURI: override
       ActivateMongoDBResources: "No"
-    template: quickstart_Fargate_V2.yaml
+    template: mongodb-atlas-mean-stack.template.yaml
