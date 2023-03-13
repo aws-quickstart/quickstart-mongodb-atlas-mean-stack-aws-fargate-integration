@@ -4,8 +4,6 @@
 
 === Test the deployment
 
-Here, we can how to test your deployment:
-
-. When the deployment completes, locate the newly created load balancer deployed in the stack, and get the DNS name shown under the load balancer section. With the help of DNS name and default port 8080, you can use to open the MEAN Stack web application.
+When the deployment completes, locate the newly created load balancer deployed in the stack, and get the DNS name shown under the load balancer section. With the help of DNS name and default port 8080, you can use to open the MEAN Stack web application.
 
 http://<LOAD_BALANCER_DNS_NAME>:8080/

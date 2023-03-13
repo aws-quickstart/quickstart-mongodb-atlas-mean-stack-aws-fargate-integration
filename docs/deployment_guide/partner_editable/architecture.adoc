@@ -11,11 +11,9 @@ image::../docs/deployment_guide/images/architecture_diagram.png[Architecture]
 
 As shown in <<architecture1>>, this Partner Solution sets up the following:
 
-* A virtual private cloud (VPC) configured with public and private subnets, according to AWS
-best practices, to provide you with your own virtual network on AWS.*
-* In the public subnets, managed network address translation (NAT) gateways to allow outbound
-internet access.*
-* AWS Fargate(ECS) deployment of a containerized application for client and server services.*
-
-
-[.small]#* The template that deploys this Partner Solution into new VPC with MongoDB Atlas resources using MongoDB CloudFormation resource types and creates AWS Fargate(ECS) services.# 
+* A MongoDB Atlas Cluster with a database user.
+* A virtual private cloud (VPC) configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
+* A Cloud Map to create a private namespace based on DNS, which will be visible only inside the specified Amazon VPC.
+* An ECS task and service with the Fargate launch type for the Angular client containerized application using the user provided ECR image URI and a Cloud Map entry for the service discovery.
+* An ECS task and service with the Fargate launch type for the Node server containerized application using the user provided ECR image URI.
+* A Load balancer to distribute incoming traffic to multiple targets.
