@@ -742,3 +742,6 @@ Outputs:
   PublicSubnet2ID:
     Description: Public subnet 2 ID in Availability Zone 1
     Value: !GetAtt "VPCStack.Outputs.PublicSubnet2ID"
+  ClientURL:
+    Description: Load balancer URL for the client application
+    Value: !Sub 'http://${LoadBalancer.DNSName}:8080'
