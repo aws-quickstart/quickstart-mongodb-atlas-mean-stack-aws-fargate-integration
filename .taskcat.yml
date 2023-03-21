@@ -1,19 +1,20 @@
 project:
   name: quickstart-mongodb-atlas
   owner: quickstart-eng@amazon.com
+  package_lambda: false
+  shorten_stack_name: true
 tests:
   mdb-atlas-fargate:
     regions:
     - ap-south-1
     parameters:
-      PublicKey: override
-      PrivateKey: override
+      Profile: override
       OrgId: override
       ProjectName: tcat-project-$[taskcat_random-string]-$[taskcat_current_region]
       ClusterName: tcat-cluster-$[taskcat_random-string]-$[taskcat_current_region]
       DatabaseUserName: override
       DatabasePassword: override
-      DatabaseUserRoleDatabaseName: admin
+      DatabaseUserRoleDatabaseName: meanStackExample
       ClusterRegion: AP_SOUTH_1
       AvailabilityZones: ap-south-1a,ap-south-1b
       PublicSubnet1CIDR: override
@@ -29,14 +30,13 @@ tests:
     regions:
     - eu-central-1
     parameters:
-      PublicKey: override
-      PrivateKey: override
+      Profile: override
       OrgId: override
       ProjectName: tcat-project-$[taskcat_random-string]-$[taskcat_current_region]
       ClusterName: tcat-cluster-$[taskcat_random-string]-$[taskcat_current_region]
       DatabaseUserName: override
       DatabasePassword: override
-      DatabaseUserRoleDatabaseName: admin
+      DatabaseUserRoleDatabaseName: meanStackExample
       ClusterRegion: EU_CENTRAL_1
       AvailabilityZones: eu-central-1a,eu-central-1b
       PublicSubnet1CIDR: override
@@ -52,14 +52,13 @@ tests:
     regions:
     - us-east-1
     parameters:
-      PublicKey: override
-      PrivateKey: override
+      Profile: override
       OrgId: override
       ProjectName: tcat-project-$[taskcat_random-string]-$[taskcat_current_region]
       ClusterName: tcat-cluster-$[taskcat_random-string]-$[taskcat_current_region]
       DatabaseUserName: override
       DatabasePassword: override
-      DatabaseUserRoleDatabaseName: admin
+      DatabaseUserRoleDatabaseName: meanStackExample
       ClusterRegion: US_EAST_1
       AvailabilityZones: us-east-1a,us-east-1b
       PublicSubnet1CIDR: override
