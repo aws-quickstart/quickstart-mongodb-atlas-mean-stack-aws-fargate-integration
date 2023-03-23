@@ -1,0 +1,8 @@
+[submodule "submodules/quickstart-aws-vpc"]
+	path = submodules/quickstart-aws-vpc
+	url = https://github.com/aws-quickstart/quickstart-aws-vpc.git
+	branch = main
+[submodule "submodules/quickstart-mongodb-atlas"]
+	path = submodules/quickstart-mongodb-atlas
+	url = https://github.com/aws-quickstart/quickstart-mongodb-atlas.git
+	branch = main

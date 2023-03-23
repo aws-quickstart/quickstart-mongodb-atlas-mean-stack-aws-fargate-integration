@@ -1,0 +1,737 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Quickstart CloudFormation template to integrate MEAN stack with AWS Fargate (qs-1rkorhec7)
+Metadata:
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9006, E3001, E1010] } }
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: MongoDB Atlas ApiKey Configuration
+        Parameters:
+          - Profile
+          - OrgId
+      - Label:
+          default: MongoDB Atlas Configuration
+        Parameters:
+          - ProjectName
+          - ClusterName
+          - ClusterRegion
+          - ClusterInstanceSize
+          - DatabaseUserRoleDatabaseName
+          - DatabaseUserName
+          - DatabasePassword
+      - Label:
+          default: AWS Network Configuration
+        Parameters:
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - WebAccessCIDR
+    ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
+      VPCCIDR:
+        default: VPC CIDR.
+      PrivateSubnet1CIDR:
+        default: Private subnet 1 CIDR
+      PrivateSubnet2CIDR:
+        default: Private subnet 2 CIDR
+      PublicSubnet1CIDR:
+        default: Public subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public subnet 2 CIDR
+      WebAccessCIDR:
+        default: Web application access CIDR
+      QSS3BucketName:
+        default: Quick Start S3 bucket name
+      QSS3KeyPrefix:
+        default: Quick Start S3 key prefix
+      QSS3BucketRegion:
+        default: Quick Start S3 bucket Region
+      Profile:
+        default: "A secret with name cfn/atlas/profile/{Profile}"
+      OrgId:
+        default: MongoDB Atlas API OrgId
+      ProjectName:
+        default: Name of new Atlas Project
+      ClusterName:
+        default: Name of new cluster
+      ClusterRegion:
+        default: The AWS Region for Atlas Cluster
+      ClusterInstanceSize:
+        default: MongoDB Atlas Instance Size
+      DatabaseUserRoleDatabaseName:
+        default: MongoDB Atlas Database User Role Database Name
+      DatabaseUserName:
+        default: MongoDB Atlas Database User  Name
+      DatabasePassword:
+        default: MongoDB Atlas Database User Password
+      ActivateMongoDBResources:
+        default: Activate MongoDB Atlas CloudFormation resources
+      # Image parameters.
+      ClientServiceECRImageURI:
+        Description: ECR image URI of the client application.
+        Type: String
+      ServerServiceECRImageURI:
+        Description: ECR image URI of the server application.
+        Type: String
+Parameters:
+  AvailabilityZones:
+    Description: List of Availability Zones to use for the VPC subnets.
+      You can specify two Availability Zones.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  PrivateSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.0.0/19
+    Description: CIDR block for the private subnet, located in Availability Zone 1.
+    Type: String
+  PrivateSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.32.0/19
+    Description: CIDR block for the private subnet, located in Availability Zone 2.
+    Type: String
+  PublicSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.128.0/20
+    Description: CIDR block for public (DMZ) subnet 1, located in Availability Zone 1.
+    Type: String
+  PublicSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.144.0/20
+    Description: CIDR block for public (DMZ) subnet 2, located in Availability Zone 2.
+    Type: String
+  WebAccessCIDR:
+    Type: String
+    Description: CIDR block to allow access to web application.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/0-32.
+    AllowedPattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))$
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String
+  Profile:
+    Description: "A secret with name cfn/atlas/profile/{Profile}"
+    Type: String
+    Default: "default"
+  OrgId:
+    Description: "Your MongoDB Cloud Organization Id"
+    Type: String
+    AllowedPattern : ^([a-f0-9]{24})$
+  ProjectName:
+    Description: "The name of the project."
+    Type: String
+    Default: "aws-quickstart"
+  ClusterName:
+    Description:
+      Name of the cluster as it appears in Atlas. Once the cluster is created,
+      its name cannot be changed.
+    Type: String
+    Default: "Cluster-1"
+  DatabaseUserName:
+    Description: MongoDB Atlas Database User  Name.
+    Type: String
+    Default: "testUser"
+  DatabasePassword:
+    Description: MongoDB Atlas Database User Password.
+    Type: String
+    NoEcho: true
+  ClusterInstanceSize:
+    Default: "M10"
+    Description: Atlas provides different cluster tiers, each with a default storage capacity and RAM size. The cluster you select is used for all the data-bearing hosts in your cluster tier. See https://docs.atlas.mongodb.com/reference/amazon-aws/#amazon-aws.
+    Type: String
+    AllowedValues:
+      - "M10"
+      - "M20"
+      - "M30"
+      - "M40"
+      - "R40"
+      - "M40_NVME"
+      - "M50"
+      - "R50"
+      - "M50_NVME"
+      - "M60"
+      - "R60"
+      - "M60_NVME"
+      - "M80"
+      - "R80"
+      - "M80_NVME"
+      - "M140"
+      - "M200"
+      - "R200"
+      - "M200_NVME"
+      - "M300"
+      - "R300"
+      - "R400"
+      - "M400_NVME"
+      - "R700"
+  ClusterRegion:
+    Default: US_EAST_1
+    Description: The AWS Region where the Atlas DB Cluster will run.
+    Type: String
+    AllowedValues:
+      - "US_EAST_1"
+      - "US_EAST_2"
+      - "CA_CENTRAL_1"
+      - "US_WEST_1"
+      - "US_WEST_2"
+      - "SA_EAST_1"
+      - "AP_SOUTH_1"
+      - "AP_EAST_1"
+      - "AP_SOUTHEAST_1"
+      - "AP_SOUTHEAST_2"
+      - "AP_SOUTHEAST_3"
+      - "AP_NORTHEAST_1"
+      - "AP_NORTHEAST_2"
+      - "AP_NORTHEAST_3"
+      - "EU_CENTRAL_1"
+      - "EU_WEST_1"
+      - "EU_NORTH_1"
+      - "EU_WEST_1"
+      - "EU_WEST_2"
+      - "EU_WEST_3"
+      - "EU_SOUTH_1"
+      - "ME_SOUTH_1"
+      - "AF_SOUTH_1"
+  ClusterMongoDBMajorVersion:
+    Description: The version of MongoDB
+    Type: String
+    Default: "5.0"
+    AllowedValues:
+      - "4.4"
+      - "5.0"
+      - "6.0"
+  DatabaseUserRoleDatabaseName:
+    Description: Database User Role Database Name
+    Type: String
+    Default: "admin"
+  ActivateMongoDBResources:
+    Description: 'Enter "Yes" to activate MongoDB Atlas CloudFormation resource types. If you already activated resources in your AWS Region, enter "No."'
+    Type: String
+    Default: "Yes"
+    AllowedValues:
+      - "No"
+      - "Yes"
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/.]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slashes (/).
+    Default: quickstart-mongodb-atlas-mean-stack-aws-fargate-integration/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slashes (/).
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: AWS Region where the Quick Start S3 bucket (QSS3BucketName) is
+      hosted. If you use your own bucket, you must specify this value.
+    Type: String
+  # Image parameters.
+  ClientServiceECRImageURI:
+    Description: ECR image URI of the client application.
+    Type: String
+    Default: ""
+  ServerServiceECRImageURI:
+    Description: ECR image URI of the server application.
+    Type: String
+    Default: ""
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  ActivateResources: !Equals [!Ref ActivateMongoDBResources, 'Yes']
+Resources:
+  ActivateAtlasResources:
+    Condition: ActivateResources
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-mongodb-atlas/templates/activate-mongodb-atlas-resources.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        Region: !Ref QSS3BucketRegion
+  Atlas:
+    Type: AWS::CloudFormation::Stack
+    Metadata:
+      PseudoDependsOn: !If
+        - ActivateResources
+        - - !Ref ActivateAtlasResources
+        - ''
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-mongodb-atlas/templates/mongodb-atlas.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        ClusterInstanceSize: !Ref ClusterInstanceSize
+        ClusterMongoDBMajorVersion: !Ref ClusterMongoDBMajorVersion
+        ProjectName: !Ref ProjectName
+        ClusterName: !Ref ClusterName
+        ClusterRegion: !Ref ClusterRegion
+        Profile: !Ref Profile
+        OrgId: !Ref OrgId
+        DatabaseUserName: !Ref "DatabaseUserName"
+        DatabasePassword: !Ref "DatabasePassword"
+        DatabaseUserRoleDatabaseName: !Ref "DatabaseUserRoleDatabaseName"
+
+  ## New VPC
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub:
+          - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        AvailabilityZones:
+          Fn::Join:
+            - ','
+            - !Ref AvailabilityZones
+        NumberOfAZs: '2'
+        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        VPCCIDR: !Ref VPCCIDR
+
+  ClientService:
+    DependsOn:
+      - ClientTCP8080Listener
+    Properties:
+      Cluster:
+        Fn::GetAtt:
+          - Cluster
+          - Arn
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DeploymentController:
+        Type: ECS
+      DesiredCount: 1
+      LaunchType: FARGATE
+      LoadBalancers:
+        - ContainerName: client
+          ContainerPort: 8080
+          TargetGroupArn:
+            Ref: ClientTCP8080TargetGroup
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - Ref: DefaultNetwork
+          Subnets:
+            - !GetAtt "VPCStack.Outputs.PublicSubnet1ID"
+            - !GetAtt "VPCStack.Outputs.PublicSubnet2ID"
+      PlatformVersion: 1.4.0
+      PropagateTags: SERVICE
+      SchedulingStrategy: REPLICA
+      ServiceRegistries:
+        - RegistryArn:
+            Fn::GetAtt:
+              - ClientServiceDiscoveryEntry
+              - Arn
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+        - Key: com.docker.compose.service
+          Value: client
+      TaskDefinition:
+        Ref: ClientTaskDefinition
+    Type: AWS::ECS::Service
+  ClientServiceDiscoveryEntry:
+    Properties:
+      Description: '"client" service discovery entry in Cloud Map'
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        RoutingPolicy: MULTIVALUE
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: client
+      NamespaceId:
+        Ref: CloudMap
+    Type: AWS::ServiceDiscovery::Service
+  ClientTCP8080Listener:
+    Properties:
+      DefaultActions:
+        - ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn:
+                  Ref: ClientTCP8080TargetGroup
+          Type: forward
+      LoadBalancerArn:
+        Ref: LoadBalancer
+      Port: 8080
+      Protocol: TCP
+    Type: AWS::ElasticLoadBalancingV2::Listener
+  ClientTCP8080TargetGroup:
+    Properties:
+      Port: 8080
+      Protocol: TCP
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+      TargetType: ip
+      VpcId: !GetAtt VPCStack.Outputs.VPCID
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  ClientTaskDefinition:
+    Properties:
+      ContainerDefinitions:
+        - Command:
+            - us-east-1.compute.internal
+            - partner-meanstack-atlas-fargate.local
+          Essential: false
+          Image: docker/ecs-searchdomain-sidecar:1.0
+          Environment:
+            - Name: ATLAS_URI
+              Value: !Sub 'http://${LoadBalancer.DNSName}:5200'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: LogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: partner-meanstack-atlas-fargate
+          Name: Client_ResolvConf_InitContainer
+        - DependsOn:
+            - Condition: SUCCESS
+              ContainerName: Client_ResolvConf_InitContainer
+          Essential: true
+          Image: !Ref ClientServiceECRImageURI
+          Environment:
+            - Name: ATLAS_URI
+              Value: !Sub 'http://${LoadBalancer.DNSName}:5200'
+          LinuxParameters: {}
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: LogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: partner-meanstack-atlas-fargate
+          Name: client
+          PortMappings:
+            - ContainerPort: 8080
+              HostPort: 8080
+              Protocol: tcp
+      Cpu: "256"
+      ExecutionRoleArn: !GetAtt "ClientTaskExecutionRole.Arn"
+      Family: partner-meanstack-atlas-fargate-client
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+    Type: AWS::ECS::TaskDefinition
+  ClientTaskExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Condition: {}
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+        - Key: com.docker.compose.service
+          Value: client
+    Type: AWS::IAM::Role
+  CloudMap:
+    Properties:
+      Description: Service Map for Docker Compose project partner-meanstack-atlas-fargate
+      Name: partner-meanstack-atlas-fargate.local
+      Vpc: !GetAtt VPCStack.Outputs.VPCID
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+  Cluster:
+    Properties:
+      ClusterName: partner-meanstack-atlas-fargate
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+    Type: AWS::ECS::Cluster
+  Default5200Ingress:
+    Properties:
+      CidrIp: !Ref WebAccessCIDR
+      Description: server:5200/tcp on default network
+      FromPort: 5200
+      GroupId:
+        Ref: DefaultNetwork
+      IpProtocol: TCP
+      ToPort: 5200
+    Type: AWS::EC2::SecurityGroupIngress
+  Default8080Ingress:
+    Properties:
+      CidrIp: !Ref WebAccessCIDR
+      Description: client:8080/tcp on default network
+      FromPort: 8080
+      GroupId:
+        Ref: DefaultNetwork
+      IpProtocol: TCP
+      ToPort: 8080
+    Type: AWS::EC2::SecurityGroupIngress
+  DefaultNetwork:
+    Properties:
+      GroupDescription:
+        partner-meanstack-atlas-fargate Security Group for default
+        network
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+        - Key: com.docker.compose.network
+          Value: partner-meanstack-atlas-fargate_default
+      VpcId: !GetAtt VPCStack.Outputs.VPCID
+    Type: AWS::EC2::SecurityGroup
+  DefaultNetworkIngress:
+    Properties:
+      Description: Allow communication within network default
+      GroupId:
+        Ref: DefaultNetwork
+      IpProtocol: "-1"
+      SourceSecurityGroupId:
+        Ref: DefaultNetwork
+    Type: AWS::EC2::SecurityGroupIngress
+  LoadBalancer:
+    Properties:
+      LoadBalancerAttributes:
+        - Key: load_balancing.cross_zone.enabled
+          Value: "true"
+      Scheme: internet-facing
+      Name: "MeanStackApp"
+      Subnets:
+        - !GetAtt "VPCStack.Outputs.PublicSubnet1ID"
+        - !GetAtt "VPCStack.Outputs.PublicSubnet2ID"
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+      Type: network
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  LogGroup:
+    Properties:
+      LogGroupName: /docker-compose/partner-meanstack-atlas-fargate
+    Type: AWS::Logs::LogGroup
+  ServerService:
+    DependsOn:
+      - ServerTCP5200Listener
+    Properties:
+      Cluster:
+        Fn::GetAtt:
+          - Cluster
+          - Arn
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DeploymentController:
+        Type: ECS
+      DesiredCount: 1
+      LaunchType: FARGATE
+      LoadBalancers:
+        - ContainerName: server
+          ContainerPort: 5200
+          TargetGroupArn:
+            Ref: ServerTCP5200TargetGroup
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - Ref: DefaultNetwork
+          Subnets:
+            - !GetAtt "VPCStack.Outputs.PublicSubnet1ID"
+            - !GetAtt "VPCStack.Outputs.PublicSubnet2ID"
+      PlatformVersion: 1.4.0
+      PropagateTags: SERVICE
+      SchedulingStrategy: REPLICA
+      ServiceRegistries:
+        - RegistryArn:
+            Fn::GetAtt:
+              - ServerServiceDiscoveryEntry
+              - Arn
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+        - Key: com.docker.compose.service
+          Value: server
+      TaskDefinition:
+        Ref: ServerTaskDefinition
+    Type: AWS::ECS::Service
+  ServerServiceDiscoveryEntry:
+    Properties:
+      Description: '"server" service discovery entry in Cloud Map'
+      DnsConfig:
+        DnsRecords:
+          - TTL: 60
+            Type: A
+        RoutingPolicy: MULTIVALUE
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Name: server
+      NamespaceId:
+        Ref: CloudMap
+    Type: AWS::ServiceDiscovery::Service
+  ServerTCP5200Listener:
+    Properties:
+      DefaultActions:
+        - ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn:
+                  Ref: ServerTCP5200TargetGroup
+          Type: forward
+      LoadBalancerArn:
+        Ref: LoadBalancer
+      Port: 5200
+      Protocol: TCP
+    Type: AWS::ElasticLoadBalancingV2::Listener
+  ServerTCP5200TargetGroup:
+    Properties:
+      Port: 5200
+      Protocol: TCP
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+      TargetType: ip
+      VpcId: !GetAtt VPCStack.Outputs.VPCID
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  ServerTaskDefinition:
+    Properties:
+      ContainerDefinitions:
+        - Command:
+            - us-east-1.compute.internal
+            - partner-meanstack-atlas-fargate.local
+          Essential: false
+          Image: docker/ecs-searchdomain-sidecar:1.0
+          Environment:
+            - Name: ATLAS_URI
+              Value: !GetAtt "Atlas.Outputs.ClusterSrvAddress"
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: LogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: partner-meanstack-atlas-fargate
+          Name: Server_ResolvConf_InitContainer
+        - DependsOn:
+            - Condition: SUCCESS
+              ContainerName: Server_ResolvConf_InitContainer
+          Essential: true
+          Image: !Ref ServerServiceECRImageURI
+          Environment:
+            - Name: ATLAS_URI
+              Value: !Join
+                - ""
+                - - "mongodb+srv://"
+                  - !Ref "DatabaseUserName"
+                  - ":"
+                  - !Ref "DatabasePassword"
+                  - "@"
+                  - !Select [
+                      1,
+                      !Split [
+                        "//",
+                        !GetAtt "Atlas.Outputs.ClusterSrvAddress",
+                      ],
+                    ]
+          LinuxParameters: {}
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: LogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: partner-meanstack-atlas-fargate
+          Name: server
+          PortMappings:
+            - ContainerPort: 5200
+              HostPort: 5200
+              Protocol: tcp
+      Cpu: "256"
+      TaskRoleArn: !GetAtt "Atlas.Outputs.AtlasIAMRole"
+      ExecutionRoleArn: !GetAtt "Atlas.Outputs.AtlasIAMRole"
+      Family: partner-meanstack-atlas-fargate-server
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+    Type: AWS::ECS::TaskDefinition
+  ServerTaskExecutionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Condition: {}
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+      Tags:
+        - Key: com.docker.compose.project
+          Value: partner-meanstack-atlas-fargate
+        - Key: com.docker.compose.service
+          Value: server
+    Type: AWS::IAM::Role
+
+Outputs:
+  AtlasIAMRole:
+    Description: "ARN for AWS IAM role database cluster access."
+    Value: !GetAtt "Atlas.Outputs.AtlasIAMRole"
+  AtlasDatabaseUser:
+    Description: "Atlas database user, configured for AWS IAM role access."
+    Value: !GetAtt "Atlas.Outputs.AtlasDatabaseUser"
+  AtlasProject:
+    Description: "Information about your Atlas deployment."
+    Value: !GetAtt "Atlas.Outputs.AtlasProject"
+  AtlasProjectIPAccessList:
+    Description: "Atlas project IP access list."
+    Value: !GetAtt "Atlas.Outputs.AtlasProjectIPAccessList"
+  AtlasCluster:
+    Description: "Information about your Atlas cluster."
+    Value: !GetAtt "Atlas.Outputs.AtlasCluster"
+  ClusterState:
+    Description: "State of your MongoDB cluster."
+    Value: !GetAtt "Atlas.Outputs.ClusterState"
+  ClusterSrvAddress:
+    Description: "Hostname for the mongodb+srv:// connection string."
+    Value: !GetAtt "Atlas.Outputs.ClusterSrvAddress"
+  PrivateSubnet1AID:
+    Description: Private subnet 1A ID in Availability Zone 1
+    Value: !GetAtt "VPCStack.Outputs.PrivateSubnet1AID"
+  PrivateSubnet2AID:
+    Description: Private subnet 2A ID in Availability Zone 2
+    Value: !GetAtt "VPCStack.Outputs.PrivateSubnet2AID"
+  PublicSubnet1ID:
+    Description: Public subnet 1 ID in Availability Zone 1
+    Value: !GetAtt "VPCStack.Outputs.PublicSubnet1ID"
+  PublicSubnet2ID:
+    Description: Public subnet 2 ID in Availability Zone 1
+    Value: !GetAtt "VPCStack.Outputs.PublicSubnet2ID"
+  ClientURL:
+    Description: Load balancer URL for the client application
+    Value: !Sub 'http://${LoadBalancer.DNSName}:8080'

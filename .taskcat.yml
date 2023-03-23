@@ -1,0 +1,50 @@
+general:
+  s3_regional_buckets: true
+project:
+  name: quickstart-mongodb-atlas-mean-stack-aws-fargate-integration
+  owner: quickstart-eng@amazon.com
+  package_lambda: false
+  shorten_stack_name: true
+  parameters:
+    Profile: override
+    OrgId: override
+    ProjectName: tcat-project-$[taskcat_random-string]-$[taskcat_current_region]
+    ClusterName: tcat-cluster-$[taskcat_random-string]-$[taskcat_current_region]
+    DatabaseUserName: $[taskcat_genpass_10]
+    DatabasePassword: $[taskcat_genpass_10]
+    DatabaseUserRoleDatabaseName: meanStackExample
+    QSS3BucketName: $[taskcat_autobucket]
+    QSS3BucketRegion: $[taskcat_current_region]
+    ClientServiceECRImageURI: override
+    ServerServiceECRImageURI: override
+    ActivateMongoDBResources: "No"
+    WebAccessCIDR: 10.0.0.0/16
+tests:
+  mdb-atlas-fargate:
+    regions:
+    - ap-south-1
+    parameters:
+      ClusterRegion: AP_SOUTH_1
+      AvailabilityZones: ap-south-1a,ap-south-1b
+    template: ./templates/mongodb-atlas-mean-stack.template.yaml
+  mdb-atlas-fargate-2:
+    regions:
+    - eu-central-1
+    parameters:
+      ClusterRegion: EU_CENTRAL_1
+      AvailabilityZones: eu-central-1a,eu-central-1b
+    template: ./templates/mongodb-atlas-mean-stack.template.yaml
+  mdb-atlas-fargate-3:
+    regions:
+    - us-east-1
+    parameters:
+      ClusterRegion: US_EAST_1
+      AvailabilityZones: us-east-1a,us-east-1b
+    template: ./templates/mongodb-atlas-mean-stack.template.yaml
+  mdb-atlas-fargate-4:
+    regions:
+    - ca-central-1
+    parameters:
+      ClusterRegion: CA_CENTRAL_1
+      AvailabilityZones: ca-central-1a,ca-central-1b
+    template: ./templates/mongodb-atlas-mean-stack.template.yaml    
