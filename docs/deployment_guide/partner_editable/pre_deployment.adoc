@@ -14,4 +14,4 @@ After creating the programmatic API keys, they need to be stored in AWS Secrets 
 
 === Create ECR Images for Client and Server Applications
 
-Containerized applications for the Client and Server are required to be uploaded to ECR.
+Containerized applications for the Client and Server are required to be uploaded to ECR. For more details on creating container images please check the example code provided in this https://github.com/mongodb/mongodbatlas-cloudformation-resources/tree/master/quickstart-examples/fargate-example[GitHub repository^].
