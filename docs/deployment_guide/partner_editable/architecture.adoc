@@ -7,13 +7,15 @@ AWS Cloud.
 
 [#architecture1]
 .Partner Solution architecture for {partner-product-short-name} on AWS
-image::../docs/deployment_guide/images/architecture_diagram.pptx[Architecture]
+image::../docs/deployment_guide/images/mongodb-atlas-mean-stack-architecture-diagram.png[Architecture]
 
 As shown in <<architecture1>>, this Partner Solution sets up the following:
 
-* A MongoDB Atlas Cluster with a database user.
-* A virtual private cloud (VPC) configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
+* A VPC for the MongoDB Atlas project that spans at least three Availability Zones. This includes a fully managed MongoDB Atlas cluster, and a database user.
+* A VPC that spans two Availability Zones. The VPC is configured with public subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
+* In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access.
+* An AWS PrivateLink connection between your VPC and the MongoDB Atlas VPC.
 * A Cloud Map to create a private namespace based on DNS, which will be visible only inside the specified Amazon VPC.
-* An ECS task and service with the Fargate launch type for the Angular client containerized application using the user provided ECR image URI and a Cloud Map entry for the service discovery.
-* An ECS task and service with the Fargate launch type for the Node server containerized application using the user provided ECR image URI.
-* A Load balancer to distribute incoming traffic to multiple targets.
+* An ECS task and service with the Fargate launch type for the containerized Angular client application using the user provided ECR image URI and a Cloud Map entry for the service discovery.
+* An ECS task and service with the Fargate launch type for the containerized server application using the user provided ECR image URI.
+* An Application Load Balancer to distribute incoming traffic to client application.

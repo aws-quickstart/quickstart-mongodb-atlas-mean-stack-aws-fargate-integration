@@ -4,4 +4,4 @@
 
 === Test the deployment
 
-When the deployment completes, locate the Outputs and search for `ClientURL` key. You can use it's value to open the MEAN Stack web application.
+When the deployment completes, locate the Outputs and search for `ClientURL` key. You can use its value to open the MEAN Stack web application.
