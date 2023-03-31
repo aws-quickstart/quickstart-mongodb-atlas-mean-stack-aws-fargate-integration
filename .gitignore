@@ -1,3 +1,5 @@
 .taskcat/
 .taskcat_overrides.yml
 taskcat_outputs/
+.idea
+.DS_Store
