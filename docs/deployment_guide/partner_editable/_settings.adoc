@@ -3,7 +3,7 @@
 :partner-product-name: MEAN Stack with AWS Fargate
 :partner-product-short-name: MEAN Stack with AWS Fargate
 :partner-company-name: MongoDB Inc.
-:doc-month: March
+:doc-month: April
 :doc-year: 2023
 :partner-contributors: Zuhair Ahmed, {partner-company-name}
 // :other-contributors: Akua Mansa, Trek10

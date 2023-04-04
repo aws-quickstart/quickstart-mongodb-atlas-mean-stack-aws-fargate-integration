@@ -4,18 +4,21 @@ Deploying this Partner Solution with default parameters builds the following {pa
 AWS Cloud.
 
 // Replace this example diagram with your own. Follow our wiki guidelines: https://w.amazon.com/bin/view/AWS_Quick_Starts/Process_for_PSAs/#HPrepareyourarchitecturediagram. Upload your source PowerPoint file to the GitHub {deployment name}/docs/images/ directory in its repository.
-
+//TODO Vinod, I revised the diagram by adding "Amazon ECS" to the icon labels for both the client and server services icons. I also moved the Application Load Balancer icon to fit horizontally between the client service icons. Please let me know if it looks okay.
 [#architecture1]
 .Partner Solution architecture for {partner-product-short-name} on AWS
 image::../docs/deployment_guide/images/mongodb-atlas-mean-stack-architecture-diagram.png[Architecture]
 
 As shown in <<architecture1>>, this Partner Solution sets up the following:
 
-* A VPC for the MongoDB Atlas project that spans at least three Availability Zones. This includes a fully managed MongoDB Atlas cluster, and a database user.
+* A VPC for the MongoDB Atlas project that spans at least three Availability Zones. This includes a fully managed MongoDB Atlas cluster and a database user.
+* An AWS PrivateLink connection between your VPC and the MongoDB Atlas VPC.
 * A VPC that spans two Availability Zones. The VPC is configured with public subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
 * In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access.
-* An AWS PrivateLink connection between your VPC and the MongoDB Atlas VPC.
-* A Cloud Map to create a private namespace based on DNS, which will be visible only inside the specified Amazon VPC.
-* An ECS task and service with the Fargate launch type for the containerized Angular client application using the user provided ECR image URI and a Cloud Map entry for the service discovery.
-* An ECS task and service with the Fargate launch type for the containerized server application using the user provided ECR image URI.
-* An Application Load Balancer to distribute incoming traffic to client application.
+//TODO Vinod, should we remove the word "task" from the two bullets below (after Amazon ECS)? In the diagram, the icon used for both the client and server services is for the Service Resource icon. The Task Resouce icon is different (please see the icon deck page 71).
+//TODO Vinod, the two bullets below mention "containerized Angular client", "containerized server application", and "Amazon ECR image URI". Do we need to add something to the diagram to represent those items? Or, if they're already represented in the diagram, maybe we need to note that in the diagram? Just trying to make sure the bullet list reflects all the diagram's components.
+** An Amazon Elastic Container Service (Amazon ECS) task and service with the AWS Fargate launch type for the containerized Angular client application using the user-provided Amazon Elastic Container Registry (Amazon ECR) image URI and an AWS Cloud Map entry for the service discovery.
+** An Amazon ECS task and service with the Fargate launch type for the containerized server application using the user-provided Amazon ECR image URI.
+** An Application Load Balancer to distribute incoming traffic to client applications.
+* An AWS Cloud Map to create a private namespace based on DNS, which will be visible only inside the specified Amazon VPC.
+//TODO Vinod, can you please add two more bullets, one for Amazon ECR and one for AWS Fargate? 
