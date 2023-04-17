@@ -11,7 +11,7 @@ image::../docs/deployment_guide/images/mongodb-atlas-mean-stack-architecture-dia
 
 As shown in <<architecture1>>, this Partner Solution sets up the following:
 
-* A virtual privat cloude (VPC) for the MongoDB Atlas project that spans at least three Availability Zones. This includes a fully managed MongoDB Atlas cluster and a database user.
+* A virtual private cloud (VPC) for the MongoDB Atlas project that spans at least three Availability Zones. This includes a fully managed MongoDB Atlas cluster and a database user.
 * An AWS PrivateLink connection between your VPC and the MongoDB Atlas VPC.
 * A VPC that spans two Availability Zones. The VPC is configured with public subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
 * In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access.
@@ -21,4 +21,4 @@ As shown in <<architecture1>>, this Partner Solution sets up the following:
 ** An Application Load Balancer to distribute incoming traffic to client applications.
 * An AWS Cloud Map to create a private namespace based on Domain Name Service (DNS), which will be visible only inside the specified Amazon VPC.
 * Amazon ECR for storing images for client and server applications.
-* AWS Fargate to run your containerized applications without the need to provision and manage the underlying infrastructure.
+* Fargate to run your containerized applications without the need to provision and manage the underlying infrastructure.
