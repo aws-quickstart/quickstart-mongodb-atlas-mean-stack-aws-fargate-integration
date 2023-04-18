@@ -14,7 +14,7 @@ As shown in <<architecture1>>, this Partner Solution sets up the following:
 * A virtual private cloud (VPC) for the MongoDB Atlas project that spans at least three Availability Zones. This includes a fully managed MongoDB Atlas cluster and a database user.
 * An AWS PrivateLink connection between your VPC and the MongoDB Atlas VPC.
 * A VPC that spans two Availability Zones. The VPC is configured with public subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
-* In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access.
+* In the public subnets, managed NAT gateways to allow outbound internet access.
 ** An Amazon Elastic Container Service (Amazon ECS) task and service with the AWS Fargate launch type for the containerized Angular client application using the user-provided Amazon Elastic Container Registry (Amazon ECR) image URI.
 ** An AWS Cloud Map entry for the service discovery.
 ** An Amazon ECS task and service with the Fargate launch type for the containerized server application using the user-provided Amazon ECR image URI.
