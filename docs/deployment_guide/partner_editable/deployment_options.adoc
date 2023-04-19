@@ -1,0 +1,6 @@
+// Edit this placeholder text as necessary to describe the deployment options.
+
+This Partner Solution provides the following deployment options:
+
+
+* https://fwd.aws/TBD?[Deploy {partner-product-short-name} into a new VPC (end to end deployment)^]. This option builds an end to end serverless application, using MEAN Stack with MongoDB Atlas and AWS Fargate.

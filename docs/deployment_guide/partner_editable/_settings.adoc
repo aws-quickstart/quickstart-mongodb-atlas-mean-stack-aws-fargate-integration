@@ -1,0 +1,14 @@
+:partner-solution-project-name: quickstart-mongodb-atlas-mean-stack-aws-fargate-integration
+:partner-solution-github-org: aws-quickstart
+:partner-product-name: MEAN Stack with AWS Fargate
+:partner-product-short-name: MEAN Stack with AWS Fargate
+:partner-company-name: MongoDB Inc.
+:doc-month: April
+:doc-year: 2023
+:partner-contributors: Zuhair Ahmed, {partner-company-name}
+// :other-contributors: Akua Mansa, Trek10
+//:aws-contributors: Janine Singh, AWS IoT Partner team
+:aws-ia-contributors: Vinod Shukla, AWS Integration & Automation team
+:deployment_time: 10-20 minutes
+:default_deployment_region: us-east-1
+// :private_repo:

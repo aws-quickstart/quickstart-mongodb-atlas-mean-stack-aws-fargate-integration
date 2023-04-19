@@ -1,0 +1,7 @@
+// Include any postdeployment steps here, such as steps necessary to test that the deployment was successful. If there are no postdeployment steps, leave this file empty.
+
+== Postdeployment steps
+
+=== Test the deployment
+
+When the deployment completes, locate the *Outputs* tab and search for the `ClientURL` key. Use that value to open the MEAN Stack web application.
